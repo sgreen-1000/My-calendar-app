@@ -1,0 +1,6 @@
+[[redirects]]
+  from = "/calendar-proxy"
+  to = "https://calendar.google.com/calendar/ical/stephenegreen%40gmail.com/private-638ded19dd3adc99b3195c3303131454/basic.ics"
+  status = 200
+  force = true
+  headers = {Access-Control-Allow-Origin = "*"}

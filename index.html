@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Calendar Briefing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 24px;
+        }
+        .day-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .day-title {
+            color: #3498db;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .event {
+            padding: 8px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .event-time {
+            color: #666;
+            font-size: 14px;
+        }
+        .event-title {
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .no-events {
+            color: #999;
+            font-style: italic;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+        .error {
+            background-color: #ffe0e0;
+            border-radius: 10px;
+            padding: 15px;
+            color: #c0392b;
+            text-align: center;
+        }
+        .refresh-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .refresh-btn:hover {
+            background-color: #2980b9;
+        }
+        .header-date {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 My Daily Briefing</h1>
+    <div class="header-date" id="header-date"></div>
+    <button class="refresh-btn" onclick="loadCalendar()">🔄 Refresh Calendar</button>
+    <div id="calendar-content">
+        <div class="loading">Loading your calendar...</div>
+    </div>
+
+    <script>
+        // PASTE YOUR CALENDAR LINK BETWEEN THE QUOTES BELOW
+        const CALENDAR_URL = "https://calendar.google.com/calendar/ical/stephenegreen%40gmail.com/private-638ded19dd3adc99b3195c3303131454/basic.ics";
+
+        const CORS_PROXY = "https://corsproxy.io/?";
+
+        // Show current date and time at top
+        function showHeaderDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('header-date').textContent = 
+                'Last updated: ' + now.toLocaleDateString([], options) + ' at ' + 
+                now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function formatTime(date, allDay) {
+            if (allDay) return "All day";
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function formatDate(date) {
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString([], options);
+        }
+
+        function parseICS(data) {
+            const events = [];
+            const lines = data.replace(/\r\n /g, '').replace(/\r/g, '').split('\n');
+            let event = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line === 'BEGIN:VEVENT') {
+                    event = {};
+                } else if (line === 'END:VEVENT') {
+                    if (event) events.push(event);
+                    event = null;
+                } else if (event) {
+                    if (line.startsWith('SUMMARY:')) {
+                        event.title = line.substring(8)
+                            .replace(/\\,/g, ',')
+                            .replace(/\\n/g, ' ')
+                            .replace(/\\;/g, ';');
+                    } else if (line.startsWith('DESCRIPTION:')) {
+                        event.description = line.substring(12)
+                            .replace(/\\,/g, ',')
+                            .replace(/\\n/g, ' ');
+                    } else if (line.startsWith('LOCATION:')) {
+                        event.location = line.substring(9)
+                            .replace(/\\,/g, ',');
+                    } else if (line.startsWith('DTSTART;VALUE=DATE:')) {
+                        const d = line.substring(19);
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8))
+                        );
+                        event.allDay = true;
+                    } else if (line.startsWith('DTSTART;TZID=')) {
+                        const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                        event.allDay = false;
+                    } else if (line.startsWith('DTSTART:')) {
+                        const d = line.substring(8);
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                        event.allDay = false;
+                    } else if (line.startsWith('DTEND;VALUE=DATE:')) {
+                        const d = line.substring(17);
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8))
+                        );
+                    } else if (line.startsWith('DTEND;TZID=')) {
+                        const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                    } else if (line.startsWith('DTEND:')) {
+                        const d = line.substring(6);
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                    }
+                }
+            }
+            return events;
+        }
+
+        async function loadCalendar() {
+            const content = document.getElementById('calendar-content');
+            content.innerHTML = '<div class="loading">⏳ Loading your calendar...</div>';
+            showHeaderDate();
+
+            try {
+                const response = await fetch(CORS_PROXY + encodeURIComponent(CALENDAR_URL));
+                if (!response.ok) throw new Error('Failed to fetch calendar');
+                const data = await response.text();
+                const events = parseICS(data);
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                let html = '';
+
+                for (let i = 0; i < 6; i++) {
+                    const day = new Date(today);
+                    day.setDate(today.getDate() + i);
+
+                    const dayEvents = events.filter(e => {
+                        if (!e.start) return false;
+                        const eStart = new Date(e.start);
+                        eStart.setHours(0,0,0,0);
+                        return eStart.getTime() === day.getTime();
+                    });
+
+                    dayEvents.sort((a,b) => {
+                        if (a.allDay && !b.allDay) return -1;
+                        if (!a.allDay && b.allDay) return 1;
+                        return a.start - b.start;
+                    });
+
+                    let label = '';
+                    if (i === 0) label = '📌 Today - ';
+                    else if (i === 1) label = '➡️ Tomorrow - ';
+                    else label = '📅 ';
+
+                    html += `<div class="day-card">
+                        <div class="day-title">${label}${formatDate(day)}</div>`;
+
+                    if (dayEvents.length === 0) {
+                        html += `<div class="no-events">No events scheduled</div>`;
+                    } else {
+                        for (const event of dayEvents) {
+                            html += `<div class="event">
+                                <div class="event-title">📌 ${event.title || 'Untitled Event'}</div>
+                                <div class="event-time">🕐 ${formatTime(event.start, event.allDay)}`;
+                            
+                            if (event.end && !event.allDay) {
+                                html += ` - ${formatTime(event.end, false)}`;
+                            }
+                            
+                            html += `</div>`;
+
+                            if (event.location) {
+                                html += `<div class="event-time">📍 ${event.location}</div>`;
+                            }
+
+                            html += `</div>`;
+                        }
+                    }
+
+                    html += `</div>`;
+                }
+
+                content.innerHTML = html;
+
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h3>⚠️ Could not load calendar</h3>
+                        <p>Please check your calendar link and try again</p>
+                        <p>Error: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // Load calendar automatically when page opens
+        loadCalendar();
+    </script>
+</body>
+</html>
+
+            
+

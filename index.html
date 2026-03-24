@@ -92,7 +92,7 @@
     </div>
 
     <script>
-        const CALENDAR_URL = "https://calendar.google.com/calendar/ical/stephenegreen%40gmail.com/private-638ded19dd3adc99b3195c3303131454/basic.ics";
+        const CALENDAR_URL = "/calendar-proxy";
 
         function showHeaderDate() {
             const now = new Date();
@@ -194,11 +194,8 @@
             content.innerHTML = '<div class="loading">Loading your calendar...</div>';
             showHeaderDate();
 
-            const proxies = [
-    "https://thingproxy.freeboard.io/fetch/",
-    "https://yacdn.org/proxy/",
-    "https://corsproxy.io/?",
-    "https://api.allorigins.win/raw?url="
+      const proxies = [""];
+
 ];
 
             ];

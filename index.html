@@ -92,192 +92,192 @@
     </div>
 
     <script>
-    <script>
-    const CALENDAR_URL = "https://calendar.google.com/calendar/ical/stephenegreen%40gmail.com/private-638ded19dd3adc99b3195c3303131454/basic.ics";
+        const CALENDAR_URL = "https://calendar.google.com/calendar/ical/stephenegreen%40gmail.com/private-638ded19dd3adc99b3195c3303131454/basic.ics";
 
-    function showHeaderDate() {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('header-date').textContent = 
-            'Last updated: ' + now.toLocaleDateString([], options) + ' at ' + 
-            now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
+        function showHeaderDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('header-date').textContent =
+                'Last updated: ' + now.toLocaleDateString([], options) + ' at ' +
+                now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
 
-    function formatTime(date, allDay) {
-        if (allDay) return "All day";
-        return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
+        function formatTime(date, allDay) {
+            if (allDay) return "All day";
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
 
-    function formatDate(date) {
-        const options = { weekday: 'long', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString([], options);
-    }
+        function formatDate(date) {
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString([], options);
+        }
 
-    function parseICS(data) {
-        const events = [];
-        const lines = data.replace(/\r\n /g, '').replace(/\r/g, '').split('\n');
-        let event = null;
+        function parseICS(data) {
+            const events = [];
+            const lines = data.replace(/\r\n /g, '').replace(/\r/g, '').split('\n');
+            let event = null;
 
-        for (let line of lines) {
-            line = line.trim();
-            if (line === 'BEGIN:VEVENT') {
-                event = {};
-            } else if (line === 'END:VEVENT') {
-                if (event) events.push(event);
-                event = null;
-            } else if (event) {
-                if (line.startsWith('SUMMARY:')) {
-                    event.title = line.substring(8)
-                        .replace(/\\,/g, ',')
-                        .replace(/\\n/g, ' ')
-                        .replace(/\\;/g, ';');
-                } else if (line.startsWith('DTSTART;VALUE=DATE:')) {
-                    const d = line.substring(19);
-                    event.start = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8))
-                    );
-                    event.allDay = true;
-                } else if (line.startsWith('DTSTART;TZID=')) {
-                    const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
-                    event.start = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8)),
-                        parseInt(d.substring(9,11)),
-                        parseInt(d.substring(11,13))
-                    );
-                    event.allDay = false;
-                } else if (line.startsWith('DTSTART:')) {
-                    const d = line.substring(8);
-                    event.start = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8)),
-                        parseInt(d.substring(9,11)),
-                        parseInt(d.substring(11,13))
-                    );
-                    event.allDay = false;
-                } else if (line.startsWith('DTEND;VALUE=DATE:')) {
-                    const d = line.substring(17);
-                    event.end = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8))
-                    );
-                } else if (line.startsWith('DTEND;TZID=')) {
-                    const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
-                    event.end = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8)),
-                        parseInt(d.substring(9,11)),
-                        parseInt(d.substring(11,13))
-                    );
-                } else if (line.startsWith('DTEND:')) {
-                    const d = line.substring(6);
-                    event.end = new Date(
-                        parseInt(d.substring(0,4)),
-                        parseInt(d.substring(4,6))-1,
-                        parseInt(d.substring(6,8)),
-                        parseInt(d.substring(9,11)),
-                        parseInt(d.substring(11,13))
-                    );
+            for (let line of lines) {
+                line = line.trim();
+                if (line === 'BEGIN:VEVENT') {
+                    event = {};
+                } else if (line === 'END:VEVENT') {
+                    if (event) events.push(event);
+                    event = null;
+                } else if (event) {
+                    if (line.startsWith('SUMMARY:')) {
+                        event.title = line.substring(8)
+                            .replace(/\\,/g, ',')
+                            .replace(/\\n/g, ' ')
+                            .replace(/\\;/g, ';');
+                    } else if (line.startsWith('DTSTART;VALUE=DATE:')) {
+                        const d = line.substring(19);
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8))
+                        );
+                        event.allDay = true;
+                    } else if (line.startsWith('DTSTART;TZID=')) {
+                        const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                        event.allDay = false;
+                    } else if (line.startsWith('DTSTART:')) {
+                        const d = line.substring(8);
+                        event.start = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                        event.allDay = false;
+                    } else if (line.startsWith('DTEND;VALUE=DATE:')) {
+                        const d = line.substring(17);
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8))
+                        );
+                    } else if (line.startsWith('DTEND;TZID=')) {
+                        const d = line.split(':')<a href="" class="citation-link" target="_blank" style="vertical-align: super; font-size: 0.8em; margin-left: 3px;">[1]</a>;
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                    } else if (line.startsWith('DTEND:')) {
+                        const d = line.substring(6);
+                        event.end = new Date(
+                            parseInt(d.substring(0,4)),
+                            parseInt(d.substring(4,6))-1,
+                            parseInt(d.substring(6,8)),
+                            parseInt(d.substring(9,11)),
+                            parseInt(d.substring(11,13))
+                        );
+                    }
                 }
             }
+            return events;
         }
-        return events;
-    }
 
-    async function loadCalendar() {
-        const content = document.getElementById('calendar-content');
-        content.innerHTML = '<div class="loading">⏳ Loading your calendar...</div>';
-        showHeaderDate();
+        async function loadCalendar() {
+            const content = document.getElementById('calendar-content');
+            content.innerHTML = '<div class="loading">Loading your calendar...</div>';
+            showHeaderDate();
 
-        // Try multiple proxies one by one
-        const proxies = [
-            "https://corsproxy.io/?",
-            "https://api.allorigins.win/raw?url=",
-            "https://proxy.cors.sh/",
-            "https://crossorigin.me/"
-        ];
+            const proxies = [
+                "https://corsproxy.io/?",
+                "https://api.allorigins.win/raw?url=",
+                "https://proxy.cors.sh/",
+                "https://crossorigin.me/"
+            ];
 
-        let data = null;
-        let lastError = null;
+            let data = null;
+            let lastError = null;
 
-        for (let proxy of proxies) {
-            try {
-                console.log("Trying proxy: " + proxy);
-                const response = await fetch(proxy + encodeURIComponent(CALENDAR_URL), {
-                    signal: AbortSignal.timeout(8000)
+            for (let proxy of proxies) {
+                try {
+                    console.log("Trying proxy: " + proxy);
+                    const response = await fetch(proxy + encodeURIComponent(CALENDAR_URL), {
+                        signal: AbortSignal.timeout(8000)
+                    });
+                    if (response.ok) {
+                        data = await response.text();
+                        console.log("Success with proxy: " + proxy);
+                        break;
+                    }
+                } catch (err) {
+                    console.log("Failed: " + proxy + " - " + err.message);
+                    lastError = err;
+                }
+            }
+
+            if (!data) {
+                content.innerHTML = `<div class="error">
+                    ❌ Could not load calendar.<br><br>
+                    All proxies failed. Last error: ${lastError ? lastError.message : 'Unknown error'}<br><br>
+                    Please try refreshing in a few minutes.
+                </div>`;
+                return;
+            }
+
+            const events = parseICS(data);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            let html = '';
+
+            for (let i = 0; i < 6; i++) {
+                const day = new Date(today);
+                day.setDate(today.getDate() + i);
+
+                const dayEvents = events.filter(e => {
+                    if (!e.start) return false;
+                    const eStart = new Date(e.start);
+                    eStart.setHours(0,0,0,0);
+                    return eStart.getTime() === day.getTime();
                 });
-                if (response.ok) {
-                    data = await response.text();
-                    console.log("Success with proxy: " + proxy);
-                    break;
+
+                dayEvents.sort((a,b) => {
+                    if (a.allDay && !b.allDay) return -1;
+                    if (!a.allDay && b.allDay) return 1;
+                    return a.start - b.start;
+                });
+
+                let label = '';
+                if (i === 0) label = '📌 Today - ';
+                else if (i === 1) label = '➡️ Tomorrow - ';
+                else label = '📅 ';
+
+                html += `<div class="day-card">
+                    <div class="day-title">${label}${formatDate(day)}</div>`;
+
+                if (dayEvents.length === 0) {
+                    html += `<div class="no-events">No events scheduled</div>`;
+                } else {
+                    for (const event of dayEvents) {
+                        html += `<div class="event">
+                            <div class="event-title">📌 ${event.title || 'Untitled Event'}</div>
+                            <div class="event-time">🕐 ${formatTime(event.start, event.allDay)}</div>
+                        </div>`;
+                    }
                 }
-            } catch (err) {
-                console.log("Failed with proxy: " + proxy + " - " + err.message);
-                lastError = err;
+                html += `</div>`;
             }
+
+            content.innerHTML = html;
         }
 
-        if (!data) {
-            content.innerHTML = `<div class="error">
-                ❌ Could not load calendar.<br><br>
-                All proxies failed. Last error: ${lastError?.message}<br><br>
-                Please try refreshing in a few minutes.
-            </div>`;
-            return;
-        }
-
-        const events = parseICS(data);
-        const today = new Date();
-        today.setHours(0,0,0,0);
-
-        let html = '';
-
-        for (let i = 0; i < 6; i++) {
-            const day = new Date(today);
-            day.setDate(today.getDate() + i);
-
-            const dayEvents = events.filter(e => {
-                if (!e.start) return false;
-                const eStart = new Date(e.start);
-                eStart.setHours(0,0,0,0);
-                return eStart.getTime() === day.getTime();
-            });
-
-            dayEvents.sort((a,b) => {
-                if (a.allDay && !b.allDay) return -1;
-                if (!a.allDay && b.allDay) return 1;
-                return a.start - b.start;
-            });
-
-            let label = '';
-            if (i === 0) label = '📌 Today - ';
-            else if (i === 1) label = '➡️ Tomorrow - ';
-            else label = '📅 ';
-
-            html += `<div class="day-card">
-                <div class="day-title">${label}${formatDate(day)}</div>`;
-
-            if (dayEvents.length === 0) {
-                html += `<div class="no-events">No events scheduled</div>`;
-            } else {
-                for (const event of dayEvents) {
-                    html += `<div class="event">
-                        <div class="event-title">📌 ${event.title || 'Untitled Event'}</div>
-                        <div class="event-time">🕐 ${formatTime(event.start, event.allDay)}</div>
-                    </div>`;
-                }
-            }
-            html += `</div>`;
-        }
-
-        content.innerHTML = html;
-    }
-
-    loadCalendar();
-</script>
+        loadCalendar();
+    </script>
+</body>
+</html>
